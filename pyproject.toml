@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling>=1.26.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ticket-tracker"
+version = "0.1.0"
+description = "A Python CLI MVP for ticket tracking with dependencies and sprint planning."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.8,<3.0",
+  "sqlalchemy>=2.0,<3.0",
+  "typer>=0.16,<1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<9.0",
+]
+
+[project.scripts]
+ticket-tracker = "ticket_tracker.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ticket_tracker"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
