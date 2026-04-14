@@ -80,4 +80,3 @@ def session_scope(
         session.close()
         if engine is None:
             resolved_engine.dispose()
-
