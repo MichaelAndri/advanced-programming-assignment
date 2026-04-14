@@ -35,5 +35,10 @@ jobs:
 
       - name: Run tests
         run: |
-            python -m pytest
-            
+            pytest --cov=ticket_tracker --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+            files: ./coverage.xml
