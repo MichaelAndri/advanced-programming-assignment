@@ -48,8 +48,6 @@ def create_session_factory(database_url: str | None = None) -> sessionmaker[Sess
 def init_db(engine: Engine | None = None, database_url: str | None = None) -> Engine:
     """Create database tables if they do not already exist."""
 
-    from ticket_tracker.models import ticket as _ticket_models
-
     resolved_engine = engine or create_db_engine(database_url)
     Base.metadata.create_all(bind=resolved_engine)
     return resolved_engine
@@ -57,7 +55,7 @@ def init_db(engine: Engine | None = None, database_url: str | None = None) -> En
 
 @contextmanager
 def session_scope(database_url: str | None = None) -> Iterator[Session]:
-    """Yield a transactional session and close it afterwards."""
+    """Create a transactional session and close it afterwards."""
 
     session = create_session_factory(database_url)()
     try:
