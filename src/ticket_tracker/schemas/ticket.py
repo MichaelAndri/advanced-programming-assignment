@@ -59,7 +59,7 @@ class TicketCreate(BaseModel):
         if not stripped:
             raise ValueError("title must not be blank")
         return stripped
-    
+
     @field_validator("priority", mode="before")
     @classmethod
     def validate_priority(cls, value: TicketPriority | int) -> TicketPriority:
@@ -67,7 +67,9 @@ class TicketCreate(BaseModel):
         try:
             return TicketPriority(value)
         except ValueError as exc:
-            raise ValueError("Priority must be 1 (low), 2 (medium), or 3 (high).") from exc
+            raise ValueError(
+                "Priority must be 1 (low), 2 (medium), or 3 (high)."
+            ) from exc
 
     @field_validator("tags", mode="before")
     @classmethod
@@ -120,7 +122,7 @@ class TicketUpdate(BaseModel):
         except ValueError as exc:
             raise ValueError(
                 "Priority must be 1 (low), 2 (medium), or 3 (high)."
-        ) from exc
+            ) from exc
 
 
 class TicketRead(BaseModel):
