@@ -5,7 +5,11 @@ from ticket_tracker.models import Ticket
 from ticket_tracker.repositories import TicketRepository
 from ticket_tracker.schemas import TicketCreate, TicketRead
 from ticket_tracker.schemas.ticket import TicketStatus, TicketUpdate
-from ticket_tracker.utils.dependency_graph import build_dependency_graph, find_cycles, is_blocked
+from ticket_tracker.utils.dependency_graph import (
+    build_dependency_graph,
+    find_cycles,
+    is_blocked,
+)
 from ticket_tracker.exceptions import (
     CircularDependencyError,
     SelfDependencyError,
@@ -37,10 +41,10 @@ class TicketService:
         return TicketRead.from_model(ticket)
 
     def list_tickets(self) -> list[TicketRead]:
-        """Return all tickets """
+        """Return all tickets"""
 
         return [TicketRead.from_model(ticket) for ticket in self.repository.list()]
-   
+
     def update_ticket(self, ticket_id: str, payload: TicketUpdate) -> TicketRead:
         """Update the provided fields for an existing ticket."""
         ticket = self._get_required_ticket(ticket_id)
@@ -55,6 +59,7 @@ class TicketService:
         self.session.commit()
         self.session.refresh(ticket)
         return TicketRead.from_model(ticket)
+
     def delete_ticket(self, ticket_id: str) -> None:
         """Delete a ticket"""
         ticket = self._get_required_ticket(ticket_id)
@@ -71,10 +76,13 @@ class TicketService:
         cycles = self.detect_cycles()
         if cycles:
             self.session.rollback()
-            raise CircularDependencyError("Adding this dependency would create a circular dependency.")
+            raise CircularDependencyError(
+                "Adding this dependency would create a circular dependency."
+            )
         self.session.commit()
         self.session.refresh(ticket)
         return TicketRead.from_model(ticket)
+
     def list_blocked_tickets(self) -> list[TicketRead]:
         """List tickets with unfinished dependencies"""
         tickets = [

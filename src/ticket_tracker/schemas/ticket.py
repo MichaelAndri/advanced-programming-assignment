@@ -130,7 +130,9 @@ class TicketRead(BaseModel):
             estimate_points=ticket.estimate_points,
             assignee=ticket.assignee,
             tags=list(ticket.tags or []),
-            dependencies=sorted(dependency.ticket_id for dependency in ticket.dependencies),
+            dependencies=sorted(
+                dependency.ticket_id for dependency in ticket.dependencies
+            ),
             created_at=ticket.created_at,
             updated_at=ticket.updated_at,
         )
@@ -154,7 +156,9 @@ class SprintPlanItem(BaseModel):
             title=ticket.title,
             priority=TicketPriority(ticket.priority),
             estimate_points=ticket.estimate_points,
-            dependencies=sorted(dependency.ticket_id for dependency in ticket.dependencies),
+            dependencies=sorted(
+                dependency.ticket_id for dependency in ticket.dependencies
+            ),
         )
 
 

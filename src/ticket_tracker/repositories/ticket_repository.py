@@ -32,7 +32,11 @@ class TicketRepository:
     def list(self) -> list[Ticket]:
         """List all tickets ordered by creation time"""
 
-        statement = select(Ticket).options(selectinload(Ticket.dependencies)).order_by(Ticket.created_at)
+        statement = (
+            select(Ticket)
+            .options(selectinload(Ticket.dependencies))
+            .order_by(Ticket.created_at)
+        )
         return list(self.session.scalars(statement).unique().all())
 
     def delete(self, ticket: Ticket) -> None:

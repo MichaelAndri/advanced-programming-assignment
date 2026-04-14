@@ -19,7 +19,9 @@ def create_db_engine(database_url: str | None = None) -> Engine:
     """Create a database engine with SQLite foreign keys enabled."""
 
     resolved_url = database_url or DEFAULT_DB_URL
-    connect_args = {"check_same_thread": False} if resolved_url.startswith("sqlite") else {}
+    connect_args = (
+        {"check_same_thread": False} if resolved_url.startswith("sqlite") else {}
+    )
     engine = create_engine(resolved_url, connect_args=connect_args, future=True)
 
     if resolved_url.startswith("sqlite"):
@@ -42,7 +44,9 @@ def create_session_factory(database_url: str | None = None) -> sessionmaker[Sess
     """Build a configured session factory."""
 
     engine = create_db_engine(database_url)
-    return sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=False)
+    return sessionmaker(
+        bind=engine, autoflush=False, autocommit=False, expire_on_commit=False
+    )
 
 
 def init_db(engine: Engine | None = None, database_url: str | None = None) -> Engine:

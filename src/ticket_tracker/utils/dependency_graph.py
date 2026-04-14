@@ -11,14 +11,19 @@ def build_dependency_graph(tickets: Iterable[Ticket]) -> dict[str, set[str]]:
 
     graph: dict[str, set[str]] = {}
     for ticket in tickets:
-        graph[ticket.ticket_id] = {dependency.ticket_id for dependency in ticket.dependencies}
+        graph[ticket.ticket_id] = {
+            dependency.ticket_id for dependency in ticket.dependencies
+        }
     return graph
 
 
 def is_blocked(ticket: Ticket) -> bool:
     """Return whether a ticket has any unfinished dependencies."""
 
-    return any(dependency.status != TicketStatus.DONE.value for dependency in ticket.dependencies)
+    return any(
+        dependency.status != TicketStatus.DONE.value
+        for dependency in ticket.dependencies
+    )
 
 
 def find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
@@ -31,7 +36,10 @@ def find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
 
     def normalise_cycle(cycle: list[str]) -> tuple[str, ...]:
         cycle_nodes = cycle[:-1]
-        rotations = [tuple(cycle_nodes[index:] + cycle_nodes[:index]) for index in range(len(cycle_nodes))]
+        rotations = [
+            tuple(cycle_nodes[index:] + cycle_nodes[:index])
+            for index in range(len(cycle_nodes))
+        ]
         return min(rotations)
 
     def dfs(node: str) -> None:

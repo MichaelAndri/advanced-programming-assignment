@@ -1,4 +1,5 @@
 """Pydantic schemas"""
+
 from ticket_tracker.schemas.ticket import (
     SprintPlan,
     SprintPlanItem,
