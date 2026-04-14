@@ -60,6 +60,17 @@ class TicketCreate(BaseModel):
             raise ValueError("title must not be blank")
         return stripped
 
+    @field_validator("priority", mode="before")
+    @classmethod
+    def validate_priority(cls, value: TicketPriority | int) -> TicketPriority:
+        """Ensure priority values are valid"""
+        try:
+            return TicketPriority(value)
+        except ValueError as exc:
+            raise ValueError(
+                "Priority must be 1 (low), 2 (medium), or 3 (high)."
+            ) from exc
+
     @field_validator("tags", mode="before")
     @classmethod
     def normalise_tags(cls, value: list[str] | None) -> list[str]:
@@ -98,6 +109,20 @@ class TicketUpdate(BaseModel):
         """Normalise tags when tags are updated."""
 
         return _normalise_tags(value)
+
+    @field_validator("priority", mode="before")
+    @classmethod
+    def validate_optional_priority(
+        cls, value: TicketPriority | int | None
+    ) -> TicketPriority | None:
+        if value is None:
+            return None
+        try:
+            return TicketPriority(value)
+        except ValueError as exc:
+            raise ValueError(
+                "Priority must be 1 (low), 2 (medium), or 3 (high)."
+            ) from exc
 
 
 class TicketRead(BaseModel):
