@@ -1,7 +1,6 @@
 """Blocked ticket tests."""
 
 from __future__ import annotations
-
 from ticket_tracker.schemas import TicketCreate, TicketStatus
 from ticket_tracker.services import TicketService
 
