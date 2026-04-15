@@ -1,10 +1,20 @@
 """Integration tests to make sure everything works together"""
 
 import re
+import pytest
 from typer.testing import CliRunner
-from ticket_tracker.cli import app
+from ticket_tracker import cli
+
+app = cli.app
 
 runner = CliRunner()
+
+
+@pytest.fixture(autouse=True)
+def use_temp_database(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(
+        cli, "DEFAULT_DB_URL", f"sqlite:///{tmp_path / 'integration.db'}"
+    )
 
 
 def test_create_ticket():
