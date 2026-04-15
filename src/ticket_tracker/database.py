@@ -58,10 +58,19 @@ def init_db(engine: Engine | None = None, database_url: str | None = None) -> En
 
 
 @contextmanager
-def session_scope(database_url: str | None = None) -> Iterator[Session]:
+def session_scope(
+    database_url: str | None = None, engine: Engine | None = None
+) -> Iterator[Session]:
     """Create a transactional session and close it afterwards."""
 
-    session = create_session_factory(database_url)()
+    resolved_engine = engine or create_db_engine(database_url)
+    session_factory = sessionmaker(
+        bind=resolved_engine,
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+    )
+    session = session_factory()
     try:
         yield session
     except Exception:
@@ -69,3 +78,5 @@ def session_scope(database_url: str | None = None) -> Iterator[Session]:
         raise
     finally:
         session.close()
+        if engine is None:
+            resolved_engine.dispose()

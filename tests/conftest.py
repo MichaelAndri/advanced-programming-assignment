@@ -18,11 +18,14 @@ def session(tmp_path) -> Session:
     session_factory = sessionmaker(
         bind=engine, autoflush=False, autocommit=False, expire_on_commit=False
     )
+    db_session = session_factory()
 
-    with session_factory() as db_session:
+    try:
         yield db_session
-
-    engine.dispose()
+    finally:
+        db_session.rollback()
+        db_session.close()
+        engine.dispose()
 
 
 @pytest.fixture

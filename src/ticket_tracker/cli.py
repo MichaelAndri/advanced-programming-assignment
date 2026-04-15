@@ -1,10 +1,17 @@
 """Typer CLI entry point"""
 
 from __future__ import annotations
+from collections.abc import Callable
 from typing import Annotated
 import typer
 from pydantic import ValidationError as PydanticValidationError
-from ticket_tracker.database import DEFAULT_DB_URL, init_db, session_scope
+from sqlalchemy import Engine
+from ticket_tracker.database import (
+    DEFAULT_DB_URL,
+    create_db_engine,
+    init_db,
+    session_scope,
+)
 from ticket_tracker.exceptions import TrackerError
 from ticket_tracker.repositories import TicketRepository
 from ticket_tracker.schemas import TicketCreate, TicketStatus, TicketUpdate
@@ -35,15 +42,18 @@ def format_error(error: Exception) -> str:
     return str(error)
 
 
-def run_ticket_command(handler: callable) -> None:
+def run_ticket_command(handler: Callable[[Engine], None]) -> None:
     """Run CLI handler inside an initialised database session"""
 
-    init_db(database_url=DEFAULT_DB_URL)
+    engine = create_db_engine(DEFAULT_DB_URL)
+    init_db(engine=engine)
     try:
-        handler()
+        handler(engine)
     except (TrackerError, PydanticValidationError) as error:
         typer.echo(f"Error: {format_error(error)}")
         raise typer.Exit(code=1) from error
+    finally:
+        engine.dispose()
 
 
 def print_ticket(ticket: dict) -> None:
@@ -74,8 +84,8 @@ def create_ticket(
 ) -> None:
     """Create a ticket."""
 
-    def handler() -> None:
-        with session_scope(DEFAULT_DB_URL) as session:
+    def handler(engine: Engine) -> None:
+        with session_scope(engine=engine) as session:
             service = TicketService(TicketRepository(session))
             ticket = service.create_ticket(
                 TicketCreate(
@@ -97,8 +107,8 @@ def create_ticket(
 def list_tickets() -> None:
     """List all tickets."""
 
-    def handler() -> None:
-        with session_scope(DEFAULT_DB_URL) as session:
+    def handler(engine: Engine) -> None:
+        with session_scope(engine=engine) as session:
             service = TicketService(TicketRepository(session))
             tickets = service.list_tickets()
             if not tickets:
@@ -129,8 +139,8 @@ def update_ticket(
 ) -> None:
     """Update an existing ticket."""
 
-    def handler() -> None:
-        with session_scope(DEFAULT_DB_URL) as session:
+    def handler(engine: Engine) -> None:
+        with session_scope(engine=engine) as session:
             service = TicketService(TicketRepository(session))
             ticket = service.update_ticket(
                 ticket_id,
@@ -153,8 +163,8 @@ def update_ticket(
 def delete_ticket(ticket_id: str) -> None:
     """Delete a ticket."""
 
-    def handler() -> None:
-        with session_scope(DEFAULT_DB_URL) as session:
+    def handler(engine: Engine) -> None:
+        with session_scope(engine=engine) as session:
             service = TicketService(TicketRepository(session))
             service.delete_ticket(ticket_id)
             typer.echo(f"Deleted ticket {ticket_id}")
@@ -166,8 +176,8 @@ def delete_ticket(ticket_id: str) -> None:
 def add_dependency(ticket_id: str, dependency_id: str) -> None:
     """Add a dependency to a ticket."""
 
-    def handler() -> None:
-        with session_scope(DEFAULT_DB_URL) as session:
+    def handler(engine: Engine) -> None:
+        with session_scope(engine=engine) as session:
             service = TicketService(TicketRepository(session))
             ticket = service.add_dependency(ticket_id, dependency_id)
             print_ticket(ticket.model_dump(mode="json"))
@@ -179,8 +189,8 @@ def add_dependency(ticket_id: str, dependency_id: str) -> None:
 def list_blocked() -> None:
     """List tickets blocked by unfinished dependencies."""
 
-    def handler() -> None:
-        with session_scope(DEFAULT_DB_URL) as session:
+    def handler(engine: Engine) -> None:
+        with session_scope(engine=engine) as session:
             service = TicketService(TicketRepository(session))
             tickets = service.list_blocked_tickets()
             if not tickets:
@@ -196,8 +206,8 @@ def list_blocked() -> None:
 def detect_cycles() -> None:
     """Detect circular dependencies."""
 
-    def handler() -> None:
-        with session_scope(DEFAULT_DB_URL) as session:
+    def handler(engine: Engine) -> None:
+        with session_scope(engine=engine) as session:
             service = TicketService(TicketRepository(session))
             cycles = service.detect_cycles()
             if not cycles:
@@ -213,8 +223,8 @@ def detect_cycles() -> None:
 def plan_sprint(capacity: int) -> None:
     """Generate a sprint plan for the provided capacity."""
 
-    def handler() -> None:
-        with session_scope(DEFAULT_DB_URL) as session:
+    def handler(engine: Engine) -> None:
+        with session_scope(engine=engine) as session:
             planner = SprintPlannerService(TicketRepository(session))
             plan = planner.plan_sprint(capacity)
             typer.echo(
