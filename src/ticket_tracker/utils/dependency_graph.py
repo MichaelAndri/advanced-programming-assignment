@@ -39,7 +39,7 @@ def find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
     seen_cycles: set[tuple[str, ...]] = set()
 
     def normalise_cycle(cycle: list[str]) -> tuple[str, ...]:
-        # Rotate the cycle so equivalent loops compare as the  same tuple 
+        # Rotate the cycle so equivalent loops compare as the  same tuple
         cycle_nodes = cycle[:-1]
         rotations = [
             tuple(cycle_nodes[index:] + cycle_nodes[:index])
