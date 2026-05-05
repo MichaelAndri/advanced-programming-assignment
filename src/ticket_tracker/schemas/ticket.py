@@ -33,6 +33,7 @@ def _normalise_tags(tags: list[str] | None) -> list[str] | None:
     normalised: list[str] = []
     for tag in tags:
         cleaned = tag.strip()
+        # Preserve the first occurrence so user input order is kept stable
         if cleaned and cleaned not in seen:
             seen.add(cleaned)
             normalised.append(cleaned)
@@ -115,6 +116,8 @@ class TicketUpdate(BaseModel):
     def validate_optional_priority(
         cls, value: TicketPriority | int | None
     ) -> TicketPriority | None:
+        """Ensure optional priority values still match the enum"""
+
         if value is None:
             return None
         try:
@@ -155,6 +158,7 @@ class TicketRead(BaseModel):
             estimate_points=ticket.estimate_points,
             assignee=ticket.assignee,
             tags=list(ticket.tags or []),
+            # Sort related ids so CLI and tests get stable output.
             dependencies=sorted(
                 dependency.ticket_id for dependency in ticket.dependencies
             ),
@@ -181,6 +185,7 @@ class SprintPlanItem(BaseModel):
             title=ticket.title,
             priority=TicketPriority(ticket.priority),
             estimate_points=ticket.estimate_points,
+            # Dependency ids are serialised in a predictable order.
             dependencies=sorted(
                 dependency.ticket_id for dependency in ticket.dependencies
             ),

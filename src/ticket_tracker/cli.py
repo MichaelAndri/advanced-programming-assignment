@@ -87,6 +87,7 @@ def create_ticket(
     def handler(engine: Engine) -> None:
         with session_scope(engine=engine) as session:
             service = TicketService(TicketRepository(session))
+            # Validate CLI input through the schema before persisting anything.
             ticket = service.create_ticket(
                 TicketCreate(
                     title=title,
@@ -142,6 +143,7 @@ def update_ticket(
     def handler(engine: Engine) -> None:
         with session_scope(engine=engine) as session:
             service = TicketService(TicketRepository(session))
+            # Only fields provided on the command line are forwarded to the service.
             ticket = service.update_ticket(
                 ticket_id,
                 TicketUpdate(
