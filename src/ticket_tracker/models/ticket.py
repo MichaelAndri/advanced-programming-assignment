@@ -17,6 +17,7 @@ def utcnow() -> datetime:
 ticket_dependencies = Table(
     "ticket_dependencies",
     Base.metadata,
+    # This is an association table that stores many to many relationships between tickets and their dependencies.
     Column(
         "ticket_id",
         String(36),
@@ -60,6 +61,7 @@ class Ticket(Base):
     dependencies: Mapped[list["Ticket"]] = relationship(
         "Ticket",
         secondary=ticket_dependencies,
+        # A ticket points to the work that must be finished before it can start.
         primaryjoin=ticket_id == ticket_dependencies.c.ticket_id,
         secondaryjoin=ticket_id == ticket_dependencies.c.dependency_id,
         backref="dependents",

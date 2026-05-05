@@ -19,6 +19,7 @@ def create_db_engine(database_url: str | None = None) -> Engine:
     """Create a database engine with SQLite foreign keys enabled."""
 
     resolved_url = database_url or DEFAULT_DB_URL
+    # SQLite needs this flag so CLI sessions can reuse one engine safely.
     connect_args = (
         {"check_same_thread": False} if resolved_url.startswith("sqlite") else {}
     )
@@ -35,6 +36,7 @@ def _enable_sqlite_foreign_keys(engine: Engine) -> None:
 
     @event.listens_for(engine, "connect")
     def _set_sqlite_pragma(dbapi_connection: Connection, _: object) -> None:
+        # SQLite leaves foreign keys off unless the pragma is enabled per connection.
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
@@ -74,9 +76,11 @@ def session_scope(
     try:
         yield session
     except Exception:
+        # Roll back partial work so callers do not inherit a broken transaction.
         session.rollback()
         raise
     finally:
         session.close()
+        # Engines created inside this helper should be disposed here as well.
         if engine is None:
             resolved_engine.dispose()
