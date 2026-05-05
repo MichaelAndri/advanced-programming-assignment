@@ -35,6 +35,7 @@ class SprintPlannerService:
         ]
 
         def sort_key(ticket: Ticket) -> tuple[int, int, str, str]:
+            # Higher priority comes first
             return (
                 -ticket.priority,
                 ticket.estimate_points,
@@ -51,6 +52,7 @@ class SprintPlannerService:
             ):
                 return True
 
+            # Dependencies are scheduled first so the final plan is executable
             for dependency in sorted(
                 [
                     dependency
@@ -62,6 +64,7 @@ class SprintPlannerService:
                 if not schedule(dependency):
                     return False
 
+            # If any unfinished dependency still could not fit, this ticket cannot fit either
             if any(
                 dependency.status != TicketStatus.DONE.value
                 and dependency.ticket_id not in planned_ids
@@ -72,6 +75,7 @@ class SprintPlannerService:
             if ticket.estimate_points > remaining_capacity:
                 return False
 
+            # Commit the ticket to the plan only after all checks pass.
             planned.append(ticket)
             planned_ids.add(ticket.ticket_id)
             remaining_capacity -= ticket.estimate_points
