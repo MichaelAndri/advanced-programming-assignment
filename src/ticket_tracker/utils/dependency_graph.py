@@ -27,6 +27,10 @@ def is_blocked(ticket: Ticket) -> bool:
 
 
 def find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
+    """Find dependency cycles in an adjacency map/matrix.
+
+    see: https://en.wikipedia.org/wiki/Depth-first_search#Finding_strongly_connected_components
+    """
 
     cycles: list[list[str]] = []
     seen_nodes: set[str] = set()
@@ -35,6 +39,7 @@ def find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
     seen_cycles: set[tuple[str, ...]] = set()
 
     def normalise_cycle(cycle: list[str]) -> tuple[str, ...]:
+        # Rotate the cycle so equivalent loops compare as the  same tuple
         cycle_nodes = cycle[:-1]
         rotations = [
             tuple(cycle_nodes[index:] + cycle_nodes[:index])
@@ -53,6 +58,7 @@ def find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
                 continue
 
             if neighbor in stack_index:
+                # A backedge means the current path has looped back on itself.
                 cycle = stack[stack_index[neighbor] :] + [neighbor]
                 normalised = normalise_cycle(cycle)
                 if normalised not in seen_cycles:

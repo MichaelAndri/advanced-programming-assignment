@@ -7,7 +7,7 @@ from ticket_tracker.models import Ticket
 
 
 class TicketRepository:
-    """DB wrapper"""
+    """DB wrapper around the ticket model."""
 
     def __init__(self, session: Session) -> None:
         self.session = session
