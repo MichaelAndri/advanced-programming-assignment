@@ -1,6 +1,6 @@
 # Ticket Tracker
 
-A Python based CLI application MVP for tracking tickets, managing ticket dependencies, detecting blocked work and creating sprint plans.
+A Python based CLI application for tracking tickets, managing ticket dependencies, detecting blocked work and creating sprint plans.
 
 [![ci](https://github.com/MichaelAndri/advanced-programming-assignment/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MichaelAndri/advanced-programming-assignment/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/github/michaelandri/advanced-programming-assignment/graph/badge.svg?token=BII5TCA4FE)](https://codecov.io/github/michaelandri/advanced-programming-assignment)
